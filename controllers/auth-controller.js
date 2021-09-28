@@ -3,6 +3,7 @@ const bcryptjs = require('bcryptjs');
 
 const Usuario = require('../models/usuario');
 const { generarJWT } = require('../helpers/generar-jwt');
+const { googleVerify } = require('../helpers/google-verify');
 
 
 
@@ -58,21 +59,64 @@ const { generarJWT } = require('../helpers/generar-jwt');
     }
 
 
+    // ** REPARAR ! **
     const googleSignin = async ( req , res ) => {
 
         const { id_token } = req.body;
 
-        // Crea el usuario mediante google
-            // Si no existe lo crea
+        try {
 
-        // Mira estado de usuario
+            // Crea el usuario mediante google
+                const { nombre , correo , img } = await googleVerify( id_token );
+                let usuario = await Usuario.findOne({ correo });
     
-        // Genera JWT
+                // Si no existe lo crea
+                    if( !usuario ) {
+                        const data = {
+                            nombre,
+                            correo,
+                            password: 'cualquiercosajjjaa',
+                            img,
+                            google: true
+                        }
+    
+                        usuario = new Usuario( data );
+                        await usuario.save();
+                    } // else {  ... TODO: Si existe UPDATE datos ***
+    
+    
+            // Mira estado de usuario
+                if( !usuario.estado ) {
+                    return res.status(401).json({
+                        msg: 'El usuario esta desactivado. Hablar con un ADMIN.'
+                    })
+                }
+    
+    
+            // Genera JWT
+                const token = await generarJWT( usuario.id );
+    
+
+        
+            res.json({
+                msg: 'google Route funcionando',
+                usuario,
+                token
+            })
+        
+            
+
+        } catch (error) {
+
+            console.log(error);
+
+            res.status(400).json({
+                msg: 'Token de Google no válido'
+            })
+
+        }
 
 
-        res.json({
-            msg: 'google Route funcionando'
-        })
     }
 
 

@@ -18,10 +18,11 @@ const router = Router();
             login );
 
     
+    // ** REPARAR ! **
     router.post( '/google' , 
         // [
 
         // ] , 
-                googleSignin);
+                googleSignin );
 
 module.exports = router;

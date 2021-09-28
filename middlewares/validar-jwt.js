@@ -21,14 +21,14 @@ const Usuario = require('../models/usuario');
             const { uid } = jwt.verify( token , process.env.SECRETORPRIVATEKEY );
             const usuario = await Usuario.findById( uid )
             
-                // Lee si el usuario está logeado
+            // Lee si el usuario está logeado
                 if( !usuario ) {
                     return res.status(401).json({
                         msg: 'Token no válido - el Usuario no existe en la BD'
                     })
                 }
 
-                // Revisa el estado del usuario - Activo/Inactivo
+            // Revisa el estado del usuario - Activo/Inactivo
                 if( !usuario.estado ) {
                     return res.status(401).json({
                         msg: 'El usuario esta desactivado o bloqueado'
